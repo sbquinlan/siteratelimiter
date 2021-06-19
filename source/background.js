@@ -1,100 +1,121 @@
 import browser from "webextension-polyfill"
 
-// we want to write to storage when we stop looking at a site.
-// this happens when we: 
-// - navigate to a new page
-// - tab to a new tab
-// - close a tab (switch to a new tab?)
-// in order to know length of time, we need to track when a page starts being active
-// this happens when we actively nagivate to a new page or a tab starts being active
-
 const DAY_IN_SECS = 86400;
+const IDLE_SECONDS = 1800;
+const PERIODIC_UPDATE_MINS = 1;
 
 const findMatch = (url, sites) =>  {
-  for (const site of sites) {
-    const {regex} = site
-    if (new RegExp(regex).test(url)) {
-      return site
+  for (const [regex, site] of Object.entries(sites)) {
+    const {disabled} = site
+    if (!disabled && new RegExp(regex).test(url)) {
+      return regex
     }
   }
   return null
 }
 
-const updateActiveTab = (tab) => {
-  browser.storage.local.get("active")
-    .then(
-      ({active}) => {
-        if (!active) return Promise.resolve(null)
-        const {url, start} = active;
-        const new_url = tab.url;
-        
-        // there's no lock so hopefully this could have 
-        // write races but whatever fuck it
-        return browser.storage.sync.get({"sites":null, "buckets":null})
-          .then(
-            ({sites, buckets}) => {
-              const site = findMatch(url, sites);
-              // do we still care?
-              if (site == null) {
-                return Promise.resolve(null)
-              }
+const getUpdatedBucket = (now, info, site, bucket) => {
+  // idk if this could happen but maybe
+  if (!site) {
+    return undefined
+  }
 
-              // are we over the limit?
-              const now = Date.now()
-              const elapsed = Math.floor((now - start) / 1000)
-              const bucket = buckets[site.regex] ?? {
-                total: 0,
-                last: now
-              };
+  const elapsed = Math.floor((now - info.start) / 1000)
+  bucket = bucket ? { ... bucket } : { "total": 0, "last": now };
 
-              if (bucket.total > 0) {
-                // secs per 24 hours
-                const leak_elapsed = Math.floor((now - bucket.last) / 1000)
-                const leak = Math.floor(
-                  (site.rate * leak_elapsed) / DAY_IN_SECS
-                );
-                bucket.total = Math.max(0, bucket.total - leak);
-              }
-              
-              bucket.total += elapsed;
-              if (bucket.total >= site.rate) {
-                // TODO: over the limit, do something?
-              }
+  if (bucket.total > 0) {
+    const leak_elapsed = Math.floor((now - bucket.last) / 1000)
+    const leak = Math.floor(
+      (site.rate * leak_elapsed) / DAY_IN_SECS
+    );
+    bucket.total = Math.max(0, bucket.total - leak);
+  }
+  
+  bucket.total += elapsed;
+  return bucket;
+}
 
-              const new_site = findMatch(new_url, sites);
-              // did the active site actually change?
-              if (new_site.regex == site.regex) {
-                return Promise.resolve(null)
-              }
+const updateBuckets = (now, records, sites, buckets) => {
+  buckets = Object.fromEntries(
+    Object.entries(buckets)
+      .filter(([regex, _]) => regex in sites)
+  );
+  const overrides = Object.fromEntries(
+    Object.entries(records)
+      .filter(([regex, _]) => regex in sites)
+      .map(
+        ([regex, info]) => [
+          regex, 
+          getUpdatedBucket(now, info, sites[regex], buckets[regex])
+        ]
+      )
+  );
+  return { ... buckets, ... overrides }
+}
 
-              // update that bucket
-              buckets[site.regex] = bucket;
+// todo: handle going over
+const updateActiveTabs = () => {
+  const now = Date.now()
+  return Promise.all([
+    browser.storage.local.get("active"),
+    browser.storage.sync.get({"sites":null, "buckets":null}),
+    browser.tabs.query({"active": true}),
+    browser.idle.queryState(IDLE_SECONDS),
+  ]).then(
+    ([storage_state, {sites, buckets}, browser_state, idle]) => {
+      const active = {};
 
-              return Promise.all([
-                browser.storage.sync.set({buckets}),
-                browser.storage.local.set({
-                  "active": {
-                    "url": new_url,
-                    "start": now,
-                  }
-                })
-              ])
-            }
-          );
+      if (idle != "active") {
+        buckets = updateBuckets(now, storage_state, sites, buckets)
+        return Promise.all([
+          browser.storage.local.set({active}),
+          browser.storage.sync.set({buckets})
+        ])
       }
-    )
+
+      // translate active tabs into regex
+      for (const tab in browser_state) {
+        const regex = findMatch(tab.url, sites)
+        if (!regex) {
+          continue;
+        } else if (regex in active) {
+          active[regex].tabs = active[regex].tabs.concat([tab.tabId])
+        } else {
+          active[regex] = {
+            tabs: [tab.tabId],
+            start: regex in storage_state 
+              ? storage_state[regex].start 
+              : now,
+          }
+        }
+      }
+
+      // find closed regexs
+      const old = Object.fromEntries(
+        Object.entries(storage_state)
+          .filter(([regex, _]) => !(regex in active))
+      );
+
+      buckets = updateBuckets(now, old, sites, buckets)
+      return Promise.all([
+        browser.storage.local.set({active}),
+        browser.storage.sync.set({buckets})
+      ])
+    }
+  )
 }
 
 browser.tabs.onUpdated.addListener(
-  (tabId, changeInfo, tab) => {
+  (_, changeInfo, tab) => {
     if (changeInfo.url && tab.active) {
-      updateActiveTab(tab)
+      updateActiveTabs()
     }
   }
 );
-
-browser.tabs.onActivated.addListener(
-  ({prev, tabId, windowId}) => {
-    browser.tabs.get(tabId).then(updateActiveTab)
-  }
-);
+browser.tabs.onActivated.addListener(updateActiveTabs);
+browser.idle.onStateChanged.addListener(updateActiveTabs);
+browser.alarms.onAlarm.addListener(updateActiveTabs);
+browser.alarms.create(
+  "",
+  {"periodInMinutes": PERIODIC_UPDATE_MINS}
+)

@@ -1,9 +1,0 @@
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _webextensionPolyfill = require("webextension-polyfill");
-var _webextensionPolyfillDefault = parcelHelpers.interopDefault(_webextensionPolyfill);
-// we want to write to storage when we stop looking at a site.
-// this happens when we navigate an active tab or a tab stops being active
-// in order to know length of time, we need to track when a page starts being active
-// this happens when we actively nagivate to a new page or a tab starts being active
-_webextensionPolyfillDefault.default.tabs.onUpdated.addListener(updateActiveTab);
-_webextensionPolyfillDefault.default.tabs.onActivated.addListener(updateActiveTab);
