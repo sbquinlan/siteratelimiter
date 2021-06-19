@@ -1,0 +1,27 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+var _preact = require("preact");
+var _hooks = require("preact/hooks");
+var _webextensionPolyfill = require("webextension-polyfill");
+var _webextensionPolyfillDefault = parcelHelpers.interopDefault(_webextensionPolyfill);
+const Popup = ()=>{
+    const [sites, setSites] = _hooks.useState({
+    });
+    _hooks.useEffect(()=>{
+        _webextensionPolyfillDefault.default.storage.sync.get('sites').then(({ sites: sites1  })=>setSites(sites1)
+        );
+    });
+    return(/*#__PURE__*/ _preact.h("div", {
+        __source: {
+            fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+            lineNumber: 13
+        },
+        __self: undefined
+    }));
+};
+_preact.render(/*#__PURE__*/ _preact.h(Popup, {
+    __source: {
+        fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+        lineNumber: 19
+    },
+    __self: undefined
+}), document.body);

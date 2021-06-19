@@ -1,0 +1,41 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+var _webextensionPolyfill = require("webextension-polyfill");
+var _webextensionPolyfillDefault = parcelHelpers.interopDefault(_webextensionPolyfill);
+// we want to write to storage when we stop looking at a site.
+// this happens when we: 
+// - navigate to a new page
+// - tab to a new tab
+// - close a tab (switch to a new tab?)
+// in order to know length of time, we need to track when a page starts being active
+// this happens when we actively nagivate to a new page or a tab starts being active
+const updateDomainTime = ({ url , start  })=>{
+    const elapsed = Date.now() - start;
+    // there's no lock so hopefully this could have 
+    // write races but whatever fuck it
+    return _webextensionPolyfillDefault.default.storage.sync.get('sites').then(({ sites  })=>{
+        sites[url] = sites[url] ? sites[url] + elapsed : elapsed;
+        return _webextensionPolyfillDefault.default.storage.sync.set({
+            sites
+        });
+    });
+};
+const updateActiveTab = (tab)=>{
+    _webextensionPolyfillDefault.default.storage.local.get("active").then(({ active  })=>active ? updateDomainTime(active) : Promise.resolve(null)
+    ).then(()=>_webextensionPolyfillDefault.default.storage.local.set({
+            "active": {
+                "url": tab.url,
+                "start": Date.now()
+            }
+        })
+    );
+};
+_webextensionPolyfillDefault.default.tabs.onUpdated.addListener((tabId, changeInfo, tab)=>{
+    if (tab.active) updateActiveTab(tab);
+}, {
+    properties: [
+        "url"
+    ]
+});
+_webextensionPolyfillDefault.default.tabs.onActivated.addListener(({ prev , tabId , windowId  })=>{
+    _webextensionPolyfillDefault.default.tabs.get(tabId).then(updateActiveTab);
+});

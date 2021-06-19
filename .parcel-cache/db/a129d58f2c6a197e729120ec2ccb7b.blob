@@ -1,0 +1,9 @@
+import   "adfc312f44281f749e3f000ca61bf2f9:preact";
+import   "adfc312f44281f749e3f000ca61bf2f9:webextension-polyfill";
+class $adfc312f44281f749e3f000ca61bf2f9$var$Popup extends $adfc312f44281f749e3f000ca61bf2f9$import$a3a1db8c2ff26123$ea71c44d9cb0d048 {
+    render() {
+        const tab = $adfc312f44281f749e3f000ca61bf2f9$import$7e90f137835892c1$9099ad97b570f7c.tabs.getCurrent();
+        return(/*#__PURE__*/ $adfc312f44281f749e3f000ca61bf2f9$import$a3a1db8c2ff26123$be8f9244aa91bbc4("div", null, /*#__PURE__*/ $adfc312f44281f749e3f000ca61bf2f9$import$a3a1db8c2ff26123$be8f9244aa91bbc4("h1", null, "Hello World"), /*#__PURE__*/ $adfc312f44281f749e3f000ca61bf2f9$import$a3a1db8c2ff26123$be8f9244aa91bbc4("h3", null, "Current tab: ", tab.status, " ", tab.url)));
+    }
+}
+$adfc312f44281f749e3f000ca61bf2f9$import$a3a1db8c2ff26123$792a797b69be0d58(/*#__PURE__*/ $adfc312f44281f749e3f000ca61bf2f9$import$a3a1db8c2ff26123$be8f9244aa91bbc4($adfc312f44281f749e3f000ca61bf2f9$var$Popup, null), document.body);

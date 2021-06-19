@@ -1,0 +1,58 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+var _webextensionPolyfill = require("webextension-polyfill");
+var _webextensionPolyfillDefault = parcelHelpers.interopDefault(_webextensionPolyfill);
+// we want to write to storage when we stop looking at a site.
+// this happens when we: 
+// - navigate to a new page
+// - tab to a new tab
+// - close a tab (switch to a new tab?)
+// in order to know length of time, we need to track when a page starts being active
+// this happens when we actively nagivate to a new page or a tab starts being active
+// reset the counter every day. 
+// could do a like leaky bucket thing maybe
+_webextensionPolyfillDefault.default.storage.sync.get({
+    "sites": null,
+    "buckets": null
+}).then(({ sites , buckets  })=>{
+    if (!sites || !buckets) return _webextensionPolyfillDefault.default.storage.sync.set({
+        "sites": {
+        },
+        "buckets": {
+        }
+    });
+});
+const updateActiveTab = (tab)=>{
+    _webextensionPolyfillDefault.default.storage.local.get("active").then(({ active  })=>{
+        if (!active) return Promise.resolve(null);
+        const { url , start  } = active;
+        // there's no lock so hopefully this could have 
+        // write races but whatever fuck it
+        const elapsed = (Date.now() - start) / 1000;
+        return _webextensionPolyfillDefault.default.storage.sync.get({
+            "sites": null,
+            "buckets": null
+        }).then(({ sites  })=>{
+            record = sites ? sites[url] : {
+                'total': 0
+            };
+            const decay = record.total = elapsed + Math.max(0, record.tot - record.rate);
+            record.last = Date.now();
+            sites[url] = sites[url] ? sites[url] + elapsed : elapsed;
+            return _webextensionPolyfillDefault.default.storage.sync.set({
+                sites
+            });
+        });
+    }).then(()=>_webextensionPolyfillDefault.default.storage.local.set({
+            "active": {
+                "url": tab.url,
+                "start": Date.now()
+            }
+        })
+    );
+};
+_webextensionPolyfillDefault.default.tabs.onUpdated.addListener((tabId, changeInfo, tab)=>{
+    if (changeInfo.url && tab.active) updateActiveTab(tab);
+});
+_webextensionPolyfillDefault.default.tabs.onActivated.addListener(({ prev , tabId , windowId  })=>{
+    _webextensionPolyfillDefault.default.tabs.get(tabId).then(updateActiveTab);
+});

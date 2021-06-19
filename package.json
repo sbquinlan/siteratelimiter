@@ -1,0 +1,35 @@
+{
+ "private": "true",
+ "name": "sitetimertest",
+ "version": "1.0.0",
+ "description": "love you guys",
+ "author": "squinlan",
+ "license": "MIT",
+ "scripts": {
+  "build": "parcel build source/manifest.json --no-content-hash --no-source-maps --no-cache",
+  "lint": "run-p lint:*",
+  "lint-fix": "run-p 'lint:* -- --fix'",
+  "lint:css": "stylelint source/**/*.css",
+  "lint:js": "xo",
+  "test": "run-p lint:* build",
+  "watch": "parcel watch source/manifest.json --no-cache --no-hmr"
+ },
+ "browserslist": [
+  "last 1 Chrome version",
+  "last 1 Firefox version"
+ ],
+ "xo": {
+  "space": "true"
+ },
+ "dependencies": {
+  "preact": "^10.5.13",
+  "webextension-polyfill": "^0.8.0"
+ },
+ "devDependencies": {
+  "@parcel/config-webextension": "^2.0.0-beta.3.1",
+  "parcel": "^2.0.0-beta.3.1"
+ },
+ "webExt": {
+  "sourceDir": "dist"
+ }
+}

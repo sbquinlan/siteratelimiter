@@ -1,0 +1,47 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+var _preact = require("preact");
+var _hooks = require("preact/hooks");
+var _webextensionPolyfill = require("webextension-polyfill");
+var _webextensionPolyfillDefault = parcelHelpers.interopDefault(_webextensionPolyfill);
+const Popup = ()=>{
+    const [tab, setTab] = _hooks.useState(null);
+    _hooks.useEffect(()=>{
+        _webextensionPolyfillDefault.default.tabs.getCurrent().then(setTab);
+    });
+};
+class Popup extends _preact.Component {
+    render() {
+        return(/*#__PURE__*/ _preact.h("div", {
+            __source: {
+                fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+                lineNumber: 23
+            },
+            __self: this
+        }, /*#__PURE__*/ _preact.h("h1", {
+            __source: {
+                fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+                lineNumber: 24
+            },
+            __self: this
+        }, "Hello World"), /*#__PURE__*/ _preact.h("h3", {
+            __source: {
+                fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+                lineNumber: 25
+            },
+            __self: this
+        }, "Current tab: ", tab)));
+    }
+    constructor(){
+        super();
+        this.state = {
+            tab: null
+        };
+    }
+}
+_preact.render(/*#__PURE__*/ _preact.h(Popup, {
+    __source: {
+        fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+        lineNumber: 31
+    },
+    __self: undefined
+}), document.body);

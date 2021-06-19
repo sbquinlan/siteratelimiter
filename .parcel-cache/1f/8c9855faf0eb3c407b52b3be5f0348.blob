@@ -1,0 +1,32 @@
+{
+  "name": "Site Timers",
+  "version": "0.0.0",
+  "description": "A browser extension that on allows a certain amount of time per domain",
+  "homepage_url": "https://github.com/sbquinlan",
+  "manifest_version": 2,
+  "minimum_chrome_version": "74",
+  "icons": {
+    "16": "e8420a98f40302421f4a8c730270cdd1",
+    "32": "88e9cc92f16762b99b5be8f110ad850f",
+    "64": "f164ce510d1bbe05e00e3346abdab3a0",
+    "96": "f65c27bb84489be2a6199dd6f5f7e4c9",
+    "128": "538c470cc52525670bd74160a6913d36"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "browser_action": {
+    "browser_style": true,
+    "chrome_style": true,
+    "default_title": "Site Timers",
+    "default_popup": "e1899f7fd0fb174463aff1912fb670b3"
+  },
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "1efcf6eefc96a72d3419c5b9a407d32b"
+    ]
+  }
+}

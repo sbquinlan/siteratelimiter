@@ -1,0 +1,43 @@
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+var _preact = require("preact");
+var _hooks = require("preact/hooks");
+var _webextensionPolyfill = require("webextension-polyfill");
+var _webextensionPolyfillDefault = parcelHelpers.interopDefault(_webextensionPolyfill);
+class Popup extends _preact.Component {
+    render() {
+        const tab = _webextensionPolyfillDefault.default.tabs.getCurrent();
+        const help = 'help';
+        return(/*#__PURE__*/ _preact.h("div", {
+            __source: {
+                fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+                lineNumber: 17
+            },
+            __self: this
+        }, /*#__PURE__*/ _preact.h("h1", {
+            __source: {
+                fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+                lineNumber: 18
+            },
+            __self: this
+        }, "Hello World"), /*#__PURE__*/ _preact.h("h3", {
+            __source: {
+                fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+                lineNumber: 19
+            },
+            __self: this
+        }, "Current tab: ", tab)));
+    }
+    constructor(){
+        super();
+        this.state = {
+            tab: null
+        };
+    }
+}
+_preact.render(/*#__PURE__*/ _preact.h(Popup, {
+    __source: {
+        fileName: "/Users/squinlan/Documents/sitetimer/source/popup.js",
+        lineNumber: 25
+    },
+    __self: undefined
+}), document.body);
