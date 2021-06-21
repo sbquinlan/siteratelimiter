@@ -1,3 +1,4 @@
+import { h } from 'preact';
 import { memo } from 'preact/compat';
 
 const SiteListRow = memo((props) => {

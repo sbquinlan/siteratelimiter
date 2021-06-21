@@ -1,3 +1,4 @@
+import { h } from 'preact';
 import { useState } from  'preact/hooks';
 
 import {DAY_IN_SECS} from '../lib/constants'
