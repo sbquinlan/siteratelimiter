@@ -2,16 +2,13 @@
  "private": "true",
  "name": "sitetimertest",
  "version": "1.0.0",
+ "type": "module",
  "description": "love you guys",
  "author": "squinlan",
  "license": "MIT",
  "scripts": {
   "build": "parcel build source/manifest.json --no-content-hash --no-source-maps --no-cache",
-  "lint": "run-p lint:*",
-  "lint-fix": "run-p 'lint:* -- --fix'",
-  "lint:css": "stylelint source/**/*.css",
-  "lint:js": "xo",
-  "test": "run-p lint:* build",
+  "test": "jest",
   "watch": "parcel watch source/manifest.json --no-cache --no-hmr"
  },
  "browserslist": [
@@ -26,7 +23,11 @@
   "webextension-polyfill": "^0.8.0"
  },
  "devDependencies": {
+  "@babel/plugin-transform-modules-commonjs": "^7.14.5",
+  "@parcel/babel-plugin-transform-runtime": "^2.0.0-nightly.1823",
+  "@parcel/babel-preset-env": "^2.0.0-alpha.3",
   "@parcel/config-webextension": "^2.0.0-beta.3.1",
+  "jest": "^27.0.4",
   "parcel": "^2.0.0-beta.3.1"
  },
  "webExt": {

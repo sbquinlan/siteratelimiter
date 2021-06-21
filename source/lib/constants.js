@@ -1,5 +1,3 @@
-const DAY_IN_SECS = 86400;
-const IDLE_SECONDS = 1800;
-const PERIODIC_UPDATE_MINS = 1;
-
-module.exports = { DAY_IN_SECS, IDLE_SECONDS, PERIODIC_UPDATE_MINS }
+export const DAY_IN_SECS = 86400;
+export const IDLE_SECONDS = 1800;
+export const PERIODIC_UPDATE_MINS = 1;

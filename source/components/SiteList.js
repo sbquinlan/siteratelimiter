@@ -31,4 +31,4 @@ const SiteList = memo((props) => {
   )
 })
 
-module.exports = SiteList
+export default SiteList

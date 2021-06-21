@@ -40,4 +40,4 @@ const SiteForm = (props) => {
   );
 }
 
-module.exports = SiteForm
+export default SiteForm
