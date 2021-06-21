@@ -2,7 +2,6 @@
  "private": "true",
  "name": "sitetimertest",
  "version": "1.0.0",
- "type": "module",
  "description": "love you guys",
  "author": "squinlan",
  "license": "MIT",
