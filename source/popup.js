@@ -49,7 +49,8 @@ const Popup = () => {
     [sites]
   )
   return (
-    <div class="container w-60 p-4 mx-auto">
+    <div class="container w-60 p-2 mx-auto">
+      <h1 class="font-sans text-xl subpixel-antialiased tracking-tighter">Site Ratelimiter</h1>
       <p class="text-center w-full">{error?.toString()}</p>
       <SiteList 
         deleteSite={deleteSite} 

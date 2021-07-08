@@ -12,7 +12,7 @@ const findMatch = (url, sites) =>  {
   return null
 }
 
-const updateSingleBucket = (timestamp_ms, start, rate, bucket) => {
+export function updateSingleBucket(timestamp_ms, start, rate, bucket) {
   // If you have two overlapping tabs open between machines and close them 
   // both. it'll probably double count the time when it should only count it once. Thats kind of
   // strange. I think limiting time additions to only be since the last bucket update

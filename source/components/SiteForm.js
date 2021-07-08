@@ -8,7 +8,7 @@ import {DAY_IN_SECS} from '../lib/constants'
 const SiteForm = (props) => {
   const [regex, setRegex] = useState("")
   const [rate, setRate] = useState("")
-  let disabled = rate == null || rate < 0 || rate > DAY_IN_SECS
+  let disabled = false
   try {
     new RegExp(regex)
   } catch (err) {
@@ -18,7 +18,7 @@ const SiteForm = (props) => {
   return (
     <div class="flex flex-row space-x-1">
       <div class="pt-0">
-        <input class="px-2 py-1 placeholder-gray-300 text-gray-700 relative bg-white rounded text-xs border border-gray-700 outline-none focus:outline-none focus:ring w-full"
+        <input class={`px-2 py-1 placeholder-gray-300 text-gray-700 relative bg-white rounded text-xs border ${disabled ? 'border-red-500' : 'border-gray-700'} outline-none focus:outline-none focus:ring w-full`}
           type="text" 
           placeholder="Regex"
           value={regex}
