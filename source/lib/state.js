@@ -13,7 +13,12 @@ const findMatch = (url, sites) =>  {
 }
 
 const updateSingleBucket = (timestamp_ms, start, rate, bucket) => {
-  const elapsed = Math.floor((timestamp_ms - start) / 1000)
+  // If you have two overlapping tabs open between machines and close them 
+  // both. it'll probably double count the time when it should only count it once. Thats kind of
+  // strange. I think limiting time additions to only be since the last bucket update
+  // will limit the impact of that sort of situation, but it could also create bugs
+  // if a bucket is updated for some reason other than a time addition
+  const elapsed = Math.floor((timestamp_ms - Math.max(start, bucket?.last ?? 0)) / 1000)
   bucket = bucket ? { ... bucket } : { "total": 0, "last": timestamp_ms };
 
   if (bucket.total > 0) {
@@ -64,6 +69,9 @@ export function updateState(timestamp_ms, {active}, {sites, buckets}, browser_st
     if (!regex) {
       continue;
     } else if (regex in new_active) {
+      // this should keep the existing start time, such
+      // that opening new tabs for the same regex won't 
+      // reset the the start time of the active tab tracking
       new_active[regex].tabs = new_active[regex].tabs.concat([tab.id])
     } else {
       new_active[regex] = {
@@ -76,6 +84,9 @@ export function updateState(timestamp_ms, {active}, {sites, buckets}, browser_st
   }
 
   // find closed regexs, only update closed buckets
+  // This isn't really necessary and in fact it might be bad. I think
+  // initially I thought less updates to the buckets would help with 
+  // race conditions but I think it might make this less robust.
   const old = Object.fromEntries(
     Object.entries(active)
       .filter(([regex, _]) => !(regex in new_active))
