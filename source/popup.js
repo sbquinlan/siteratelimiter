@@ -49,8 +49,8 @@ const Popup = () => {
     [sites]
   )
   return (
-    <div>
-      <p>{error?.toString()}</p>
+    <div class="container w-60 p-4 mx-auto">
+      <p class="text-center w-full">{error?.toString()}</p>
       <SiteList 
         deleteSite={deleteSite} 
         sites={sites} 
