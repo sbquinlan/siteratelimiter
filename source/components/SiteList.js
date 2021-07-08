@@ -5,9 +5,8 @@ const SiteListRow = memo((props) => {
   return (
     <li>
       <span>{props.regex}</span>
-      <span>{props.info.rate}</span>
-      <span>{props.active?.total ?? 0}</span>
-      <span onClick={() => props.deleteSite(props.regex)}>X</span>
+      <span> {props.total} / {props.rate} </span>
+      <span onClick={() => props.deleteSite(props.regex)}>❌</span>
     </li>
   );
 })
@@ -18,11 +17,12 @@ const SiteList = memo((props) => {
       {
         Object.entries(props.sites)
           .map(
-            ([key, value]) => <SiteListRow 
+            ([key, {rate}]) => <SiteListRow 
               key={key} 
               regex={key}
-              info={value} 
-              active={props.active[key]}
+              total={props.buckets[key]?.total ?? 0}
+              last={props.active[key]?.last}
+              rate={rate}
               deleteSite={props.deleteSite}
             />
           )

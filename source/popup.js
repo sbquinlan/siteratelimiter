@@ -9,12 +9,13 @@ const Popup = () => {
   const [error, setError] = useState(null)
   const [active, setActive] = useState({})
   const [sites, setSites] = useState({})
+  const [buckets, setBuckets] = useState({})
 
   const refresh = () => {
     browser.storage.local.get('active')
       .then(({active}) => setActive(active))
-    browser.storage.sync.get('sites')
-      .then(({sites}) => setSites(sites))
+    browser.storage.sync.get(['sites', 'buckets'])
+      .then(({buckets, sites}) => {setBuckets(buckets); setSites(sites);})
   }
   useEffect(() => {
     browser.storage.onChanged.addListener(refresh)
@@ -50,7 +51,12 @@ const Popup = () => {
   return (
     <div>
       <p>{error?.toString()}</p>
-      <SiteList deleteSite={deleteSite} sites={sites} active={active} />
+      <SiteList 
+        deleteSite={deleteSite} 
+        sites={sites} 
+        buckets={buckets}
+        active={active} 
+      />
       <SiteForm addSite={addSite} />
     </div>
   );

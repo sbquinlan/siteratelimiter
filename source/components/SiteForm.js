@@ -3,6 +3,8 @@ import { useState } from  'preact/hooks';
 
 import {DAY_IN_SECS} from '../lib/constants'
 
+// sites: { [regex]: {rate: #secs}} 
+
 const SiteForm = (props) => {
   const [regex, setRegex] = useState("")
   const [rate, setRate] = useState("")

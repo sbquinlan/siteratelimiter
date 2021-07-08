@@ -1,5 +1,7 @@
-import {DAY_IN_SECS, IDLE_SECONDS, PERIODIC_UPDATE_MINS} from "./constants.js"
-import now from './now.js'
+import {DAY_IN_SECS} from "./constants.js"
+
+// buckets = { [regex] : {total: #secs, last: #timestamp_ms}}
+// active = { [regex] : {tags: [], start: #timestamp_ms}}
 
 const findMatch = (url, sites) =>  {
   for (const [regex, site] of Object.entries(sites)) {
@@ -10,13 +12,13 @@ const findMatch = (url, sites) =>  {
   return null
 }
 
-const updateSingleBucket = (timestamp_ms, info, site, bucket) => {
-  const elapsed = Math.floor((timestamp_ms - info.start) / 1000)
+const updateSingleBucket = (timestamp_ms, start, rate, bucket) => {
+  const elapsed = Math.floor((timestamp_ms - start) / 1000)
   bucket = bucket ? { ... bucket } : { "total": 0, "last": timestamp_ms };
 
   if (bucket.total > 0) {
     const leak_elapsed = Math.floor((timestamp_ms - bucket.last) / 1000)
-    const leak = Math.floor((site.rate * leak_elapsed) / DAY_IN_SECS);
+    const leak = Math.floor((rate * leak_elapsed) / DAY_IN_SECS);
     bucket.total = Math.max(0, bucket.total - leak)
   }
   
@@ -25,19 +27,19 @@ const updateSingleBucket = (timestamp_ms, info, site, bucket) => {
   return bucket;
 }
 
-const updateBuckets = (timestamp_ms, records, sites, buckets) => {
+const updateBuckets = (timestamp_ms, old_active, sites, buckets) => {
   // filter out dead buckets
   buckets = Object.fromEntries(
     Object.entries(buckets)
       .filter(([regex, _]) => regex in sites)
   );
   const overrides = Object.fromEntries(
-    Object.entries(records)
+    Object.entries(old_active)
       .filter(([regex, _]) => regex in sites)
       .map(
-        ([regex, info]) => [
+        ([regex, {start}]) => [
           regex, 
-          updateSingleBucket(timestamp_ms, info, sites[regex], buckets[regex])
+          updateSingleBucket(timestamp_ms, start, sites[regex].rate, buckets[regex])
         ]
       )
   );
@@ -45,13 +47,15 @@ const updateBuckets = (timestamp_ms, records, sites, buckets) => {
   return { ... buckets, ... overrides }
 }
 
-export function updateState([storage_state, {sites, buckets}, browser_state, idle]) {
-  const timestamp_ms = now();
-  const active = {};
+export function updateState(timestamp_ms, {active}, {sites, buckets}, browser_state, idle) {
+  const new_active = {};
 
   // close all tabs if idle
   if (idle != "active") {
-    return [active, updateBuckets(timestamp_ms, storage_state, sites, buckets)]
+    return {
+      'active': new_active, 
+      'buckets': updateBuckets(timestamp_ms, active, sites, buckets)
+    };
   }
 
   // translate active tabs into regex
@@ -59,22 +63,25 @@ export function updateState([storage_state, {sites, buckets}, browser_state, idl
     const regex = findMatch(tab.url, sites)
     if (!regex) {
       continue;
-    } else if (regex in active) {
-      active[regex].tabs = active[regex].tabs.concat([tab.tabId])
+    } else if (regex in new_active) {
+      new_active[regex].tabs = new_active[regex].tabs.concat([tab.id])
     } else {
-      active[regex] = {
-        tabs: [tab.tabId],
-        start: regex in storage_state 
-          ? storage_state[regex].start 
+      new_active[regex] = {
+        tabs: [tab.id],
+        start: regex in active 
+          ? active[regex].start 
           : timestamp_ms,
       }
     }
   }
 
-  // find closed regexs
+  // find closed regexs, only update closed buckets
   const old = Object.fromEntries(
-    Object.entries(storage_state)
-      .filter(([regex, _]) => !(regex in active))
+    Object.entries(active)
+      .filter(([regex, _]) => !(regex in new_active))
   );
-  return [active, updateBuckets(timestamp_ms, old, sites, buckets)]
+  return {
+    'active': new_active, 
+    'buckets': updateBuckets(timestamp_ms, old, sites, buckets)
+  };
 }
