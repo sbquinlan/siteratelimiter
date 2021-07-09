@@ -1,5 +1,6 @@
 {
 	"name": "Site Ratelimiter",
+  "key": "gogkgdobdlfphkmajbffhiimecbikiai",
 	"version": "1.0.0",
 	"description": "A browser extension that will track the amount of time spent on websites.",
 	"homepage_url": "https://github.com/sbquinlan",

@@ -7,6 +7,7 @@
  "license": "MIT",
  "scripts": {
   "build": "parcel build source/manifest.json --no-content-hash --no-source-maps --no-cache",
+  "release": "webstore upload --source=dist --auto-publish",
   "test": "jest",
   "watch": "parcel watch source/manifest.json --no-cache --no-hmr"
  },
@@ -27,6 +28,7 @@
   "@parcel/babel-preset-env": "^2.0.0-alpha.3",
   "@parcel/config-webextension": "^2.0.0-beta.3.1",
   "autoprefixer": "^10.2.6",
+  "chrome-webstore-upload-cli": "^1.2.1",
   "jest": "^27.0.4",
   "parcel": "^2.0.0-beta.3.1",
   "postcss": "^8.3.5",
