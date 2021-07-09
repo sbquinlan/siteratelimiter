@@ -2,7 +2,6 @@ import browser from "webextension-polyfill"
 import {IDLE_SECONDS, PERIODIC_UPDATE_MINS} from './lib/constants'
 import {updateState} from './lib/state'
 
-// todo: handle tabs going over
 const updateActiveTabs = () => {
   const now = Date.now()
   return Promise.all([
@@ -11,20 +10,24 @@ const updateActiveTabs = () => {
     browser.tabs.query({"active": true}),
     browser.idle.queryState(IDLE_SECONDS),
   ])
-    // .then(data => {
-    //   console.log(now, ... data)
-    //   return data
-    // })
-    .then(data => updateState(now, ... data))
-    // .then(data => {
-    //   console.log(data)
-    //   return data
-    // })
+    .then(data => {
+      const [_, {sites}] = data
+      const {active, buckets} = updateState(now, ... data)
+      return {active, buckets, sites}
+    })
     .then(
-      ({active, buckets}) => Promise.all([
-        browser.storage.local.set({active}),
-        browser.storage.sync.set({buckets})
-      ])
+      ({active, buckets, sites}) => {
+        const active_over = Object.entries(buckets)
+          .filter(([k, bucket]) => k in active && bucket.total > sites[k].rate)
+        browser.browserAction.setBadgeText({'text': `${active_over.length > 0 ? active_over.length : ''}`})
+        browser.browserAction.setBadgeBackgroundColor({color: "red"});
+        browser.browserAction.setBadgeTextColor({color: "white"});
+        
+        return Promise.all([
+          browser.storage.local.set({active}),
+          browser.storage.sync.set({buckets})
+        ]);
+      }
     )
     .catch(console.error)
 }

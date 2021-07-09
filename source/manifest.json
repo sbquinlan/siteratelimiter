@@ -1,7 +1,7 @@
 {
-	"name": "Site Timers",
-	"version": "0.0.0",
-	"description": "A browser extension that on allows a certain amount of time per domain",
+	"name": "Site Ratelimiter",
+	"version": "1.0.0",
+	"description": "A browser extension that will track the amount of time spent on websites.",
 	"homepage_url": "https://github.com/sbquinlan",
 	"manifest_version": 2,
 	"minimum_chrome_version": "74",
@@ -22,7 +22,7 @@
   "browser_action": {
     "browser_style": true,
     "chrome_style": true,
-    "default_title": "Site Timers",
+    "default_title": "Site Ratelimiter",
     "default_popup": "popup.html"
   },
 	"background": {

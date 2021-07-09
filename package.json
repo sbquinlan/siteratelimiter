@@ -1,8 +1,8 @@
 {
  "private": "true",
- "name": "sitetimertest",
+ "name": "Site Ratelimiter",
  "version": "1.0.0",
- "description": "love you guys",
+ "description": "An open source extension that tracks the time spent per 24 hours on a specified domain.",
  "author": "squinlan",
  "license": "MIT",
  "scripts": {
