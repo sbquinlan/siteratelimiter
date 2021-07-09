@@ -34,6 +34,9 @@ const SiteList = memo((props) => {
         Object.entries(props.sites)
           .map(
             ([key, {rate}]) => {
+              // even though buckets are updated frequently
+              // we still only update buckets if they are active
+              // so this will update inactive buckets for display
               const updated = updateSingleBucket(
                 now, 
                 props.active[key]?.start ?? now, 

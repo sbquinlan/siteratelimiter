@@ -27,7 +27,7 @@ export function updateSingleBucket(timestamp_ms, start, rate, bucket) {
     bucket.total = Math.max(0, bucket.total - leak)
   }
   
-  bucket.total += elapsed;
+  bucket.total += Math.max(0, elapsed);
   bucket.last = timestamp_ms;
   return bucket;
 }
@@ -69,11 +69,11 @@ export function updateState(timestamp_ms, {active}, {sites, buckets}, browser_st
     if (!regex) {
       continue;
     } else if (regex in new_active) {
+      new_active[regex].tabs = new_active[regex].tabs.concat([tab.id])
+    } else {
       // this should keep the existing start time, such
       // that opening new tabs for the same regex won't 
       // reset the the start time of the active tab tracking
-      new_active[regex].tabs = new_active[regex].tabs.concat([tab.id])
-    } else {
       new_active[regex] = {
         tabs: [tab.id],
         start: regex in active 
@@ -83,16 +83,14 @@ export function updateState(timestamp_ms, {active}, {sites, buckets}, browser_st
     }
   }
 
-  // find closed regexs, only update closed buckets
-  // This isn't really necessary and in fact it might be bad. I think
-  // initially I thought less updates to the buckets would help with 
-  // race conditions but I think it might make this less robust.
-  const old = Object.fromEntries(
-    Object.entries(active)
-      .filter(([regex, _]) => !(regex in new_active))
-  );
+  // I'm kind of torn on what buckets to update here
+  // initially I thought to only update buckets when records
+  // leave the active tracking but then I thought of a case where
+  // that would cause an accounting error.
+  // I feel like maybe even adding new active to this buckets call
+  // might be the way to do, just keep buckets as up to date as possible.
   return {
     'active': new_active, 
-    'buckets': updateBuckets(timestamp_ms, old, sites, buckets)
+    'buckets': updateBuckets(timestamp_ms, active, sites, buckets)
   };
 }

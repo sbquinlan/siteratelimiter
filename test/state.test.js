@@ -59,12 +59,17 @@ describe('updateState', () => {
     )
     
     expect(active).toStrictEqual({'reddit.com': {'tabs': [1], 'start': 50}})
-    expect(buckets).toStrictEqual({});
+    expect(buckets).toStrictEqual({
+      'reddit.com': {
+        'last': 100,
+        'total': 0
+      }
+    });
   });
 
   test('should continue tracking tabs that are active and tracked using the existing start', function() {
     const {active, buckets} = updateState(
-      100,
+      200,
       {
         'active': {
           'reddit.com': {'tabs': [1], 'start': 150}
@@ -79,7 +84,12 @@ describe('updateState', () => {
     )
     
     expect(active).toStrictEqual({'reddit.com': {'tabs': [1], 'start': 150}})
-    expect(buckets).toStrictEqual({});
+    expect(buckets).toStrictEqual({
+      'reddit.com': {
+        'last': 200,
+        'total': 0
+      }
+    });
   });
 
   test('should aggregate tracking tabs that are active', function() {
@@ -102,7 +112,12 @@ describe('updateState', () => {
     )
     
     expect(active).toStrictEqual({'reddit.com': {'tabs': [1, 3], 'start': 50}})
-    expect(buckets).toStrictEqual({});
+    expect(buckets).toStrictEqual({
+      'reddit.com': {
+        'last': 100,
+        'total': 0
+      }
+    });
   });
 
   test('should (de)aggregate tracking tabs that are active', function() {
@@ -122,7 +137,12 @@ describe('updateState', () => {
     )
     
     expect(active).toStrictEqual({'reddit.com': {'tabs': [1], 'start': 50}})
-    expect(buckets).toStrictEqual({});
+    expect(buckets).toStrictEqual({
+      'reddit.com': {
+        'last': 100,
+        'total': 0
+      }
+    });
   });
 
   test('should aggregate multiple active tabs', function() {
@@ -153,7 +173,12 @@ describe('updateState', () => {
       'reddit.com': {'tabs': [1, 3], 'start': 50},
       'twitch.tv': {'tabs': [2, 4], 'start': 100}
     })
-    expect(buckets).toStrictEqual({});
+    expect(buckets).toStrictEqual({
+      'reddit.com': {
+        'last': 100,
+        'total': 0
+      }
+    });
   });
 
   test('should ignore active tabs on idle', function() {
