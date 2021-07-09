@@ -1,4 +1,4 @@
-![](https://pandao.github.io/editor.md/images/logos/editormd-logo-180x180.png)
+![](https://raw.githubusercontent.com/sbquinlan/siteratelimiter/main/source/icons/icon128.png)
 
 # Site Ratelimiter
 
