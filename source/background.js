@@ -21,7 +21,6 @@ const updateActiveTabs = () => {
           .filter(([k, bucket]) => k in active && bucket.total > sites[k].rate)
         browser.browserAction.setBadgeText({'text': `${active_over.length > 0 ? active_over.length : ''}`})
         browser.browserAction.setBadgeBackgroundColor({color: "red"});
-        browser.browserAction.setBadgeTextColor({color: "white"});
         
         return Promise.all([
           browser.storage.local.set({active}),
