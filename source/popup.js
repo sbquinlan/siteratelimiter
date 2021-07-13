@@ -12,9 +12,9 @@ const Popup = () => {
   const [buckets, setBuckets] = useState({})
 
   const refresh = () => {
-    browser.storage.local.get('active')
+    browser.storage.local.get({'active':{}})
       .then(({active}) => setActive(active))
-    browser.storage.sync.get(['sites', 'buckets'])
+    browser.storage.sync.get({'sites':{}, 'buckets':{}})
       .then(({buckets, sites}) => {setBuckets(buckets); setSites(sites);})
   }
   useEffect(() => {

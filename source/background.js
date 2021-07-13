@@ -5,7 +5,7 @@ import {updateState} from './lib/state'
 const updateActiveTabs = () => {
   const now = Date.now()
   return Promise.all([
-    browser.storage.local.get("active"),
+    browser.storage.local.get({"active":{}}),
     browser.storage.sync.get({"sites":{}, "buckets":{}}),
     browser.tabs.query({"active": true}),
     browser.idle.queryState(IDLE_SECONDS),
